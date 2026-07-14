@@ -1,0 +1,5 @@
+#!/bin/sh
+# Remove automated co-author trailers from the commit message.
+MSG_FILE="$1"
+[ -f "$MSG_FILE" ] || exit 0
+sed '/cursoragent@cursor\.com/d;/Co-authored-by: Cursor/d' "$MSG_FILE" > "$MSG_FILE.tmp" && mv "$MSG_FILE.tmp" "$MSG_FILE"
