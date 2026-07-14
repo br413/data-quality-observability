@@ -27,6 +27,8 @@ On-call triage runbook
 
 See [`docs/architecture.md`](docs/architecture.md) for component boundaries and failure modes.
 
+Scheduling options are documented in [`docs/scheduling.md`](docs/scheduling.md).
+
 ## Current capabilities
 
 - [x] YAML data contracts with column rules and foreign keys
@@ -36,7 +38,8 @@ See [`docs/architecture.md`](docs/architecture.md) for component boundaries and 
 - [x] Alert routing to console, JSONL file, and optional webhook
 - [x] Failure triage runbook in [`docs/operations.md`](docs/operations.md)
 - [x] Unit and integration tests with CI
-- [ ] Scheduled orchestration (Airflow / cron integration planned)
+- [x] Airflow DAG `dqo_orders_contract_checks` for scheduled contract runs
+- [ ] Webhook alert integration tests against mock server
 
 ## Technology
 
@@ -95,6 +98,8 @@ python -m src.dqo.cli history --contract orders
 │   ├── ISSUE_TEMPLATE/
 │   ├── workflows/ci.yml
 │   └── pull_request_template.md
+├── dags/
+│   └── dqo_orders_checks.py
 ├── contracts/
 │   └── orders.yml
 ├── data/samples/
@@ -129,7 +134,7 @@ Coverage includes contract loading, each check type, end-to-end runs, history pe
 
 | Concern | Approach |
 |---------|----------|
-| Scheduling | Manual CLI today; orchestrator hook planned |
+| Scheduling | Airflow DAG `@daily` (`dqo_orders_contract_checks`) |
 | Monitoring | Check history + alert JSONL |
 | Retries | Re-run after upstream fix; history preserves prior failures |
 | Triage | [`docs/operations.md`](docs/operations.md) |
