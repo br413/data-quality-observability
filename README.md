@@ -31,7 +31,7 @@ Scheduling options are documented in [`docs/scheduling.md`](docs/scheduling.md).
 
 ## Current capabilities
 
-- [x] YAML data contracts with column rules and foreign keys
+- [x] YAML data contracts with column rules and foreign keys (orders, customers)
 - [x] Schema validation against contract columns
 - [x] Null, uniqueness, freshness, and referential-integrity checks
 - [x] Check run history with SQLite (default) or PostgreSQL
@@ -101,7 +101,8 @@ python -m src.dqo.cli history --contract orders
 ├── dags/
 │   └── dqo_orders_checks.py
 ├── contracts/
-│   └── orders.yml
+│   ├── orders.yml
+│   └── customers.yml
 ├── data/samples/
 ├── docs/
 │   ├── architecture.md

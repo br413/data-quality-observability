@@ -1,0 +1,15 @@
+name: customers
+version: "1.0"
+description: Customer dimension contract for retail analytics
+
+columns:
+  customer_id:
+    type: string
+    nullable: false
+    unique: true
+  full_name:
+    type: string
+    nullable: false
+  region:
+    type: string
+    nullable: false

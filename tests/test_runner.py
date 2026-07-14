@@ -23,3 +23,17 @@ def test_run_contract_file_fails_for_invalid_dataset(tmp_path: Path) -> None:
     )
     assert summary.passed is False
     assert summary.failed_results
+
+
+def test_run_checks_passes_for_valid_customers(customers_contract, customers) -> None:
+    results = run_checks(customers_contract, customers)
+    assert all(result.status.value != "failed" for result in results)
+
+
+def test_run_contract_file_fails_for_invalid_customers() -> None:
+    summary = run_contract_file(
+        Path("contracts/customers.yml"),
+        Path("data/samples/customers_invalid.csv"),
+    )
+    assert summary.passed is False
+    assert summary.failed_results
