@@ -15,6 +15,11 @@ def orders_contract() -> object:
 
 
 @pytest.fixture
+def customers_contract() -> object:
+    return load_contract(ROOT / "contracts" / "customers.yml")
+
+
+@pytest.fixture
 def valid_orders() -> list[dict[str, str]]:
     return load_csv(ROOT / "data" / "samples" / "orders.csv")
 
