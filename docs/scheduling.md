@@ -2,11 +2,11 @@
 
 ## Airflow
 
-The `dags/dqo_orders_contract_checks.py` DAG runs the orders contract daily:
+The `dags/dqo_contract_checks.py` DAG runs orders and customers contracts daily:
 
 ```bash
 export DQO_PROJECT_ROOT=/path/to/data-quality-observability
-airflow dags test dqo_orders_contract_checks 2026-07-14
+airflow dags test dqo_contract_checks 2026-07-14
 ```
 
 Environment variables:

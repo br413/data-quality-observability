@@ -38,7 +38,7 @@ Scheduling options are documented in [`docs/scheduling.md`](docs/scheduling.md).
 - [x] Alert routing to console, JSONL file, and optional webhook
 - [x] Failure triage runbook in [`docs/operations.md`](docs/operations.md)
 - [x] Unit and integration tests with CI
-- [x] Airflow DAG `dqo_orders_contract_checks` for scheduled contract runs
+- [x] Airflow DAG `dqo_contract_checks` for scheduled contract runs
 - [ ] Webhook alert integration tests against mock server
 
 ## Technology
@@ -99,7 +99,7 @@ python -m src.dqo.cli history --contract orders
 │   ├── workflows/ci.yml
 │   └── pull_request_template.md
 ├── dags/
-│   └── dqo_orders_checks.py
+│   └── dqo_contract_checks.py
 ├── contracts/
 │   ├── orders.yml
 │   └── customers.yml
@@ -135,7 +135,7 @@ Coverage includes contract loading, each check type, end-to-end runs, history pe
 
 | Concern | Approach |
 |---------|----------|
-| Scheduling | Airflow DAG `@daily` (`dqo_orders_contract_checks`) |
+| Scheduling | Airflow DAG `@daily` (`dqo_contract_checks`) |
 | Monitoring | Check history + alert JSONL |
 | Retries | Re-run after upstream fix; history preserves prior failures |
 | Triage | [`docs/operations.md`](docs/operations.md) |
