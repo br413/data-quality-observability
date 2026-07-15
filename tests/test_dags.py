@@ -23,16 +23,16 @@ def test_dag_loads_without_import_errors() -> None:
     dag_bag = DagBag(dag_folder=DAGS_FOLDER, include_examples=False)
     assert dag_bag.import_errors == {}, f"DAG import errors: {dag_bag.import_errors}"
 
-    dag = dag_bag.get_dag("dqo_orders_contract_checks")
+    dag = dag_bag.get_dag("dqo_contract_checks")
     assert dag is not None
-    assert len(dag.tasks) == 1
+    assert len(dag.tasks) == 2
 
 
 def test_dag_schedule_and_tags() -> None:
     from airflow.models import DagBag
 
     dag_bag = DagBag(dag_folder=DAGS_FOLDER, include_examples=False)
-    dag = dag_bag.get_dag("dqo_orders_contract_checks")
+    dag = dag_bag.get_dag("dqo_contract_checks")
     assert dag is not None
     assert dag.schedule_interval == "@daily"
     assert "data-quality" in dag.tags
