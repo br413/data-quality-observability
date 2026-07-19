@@ -1,10 +1,19 @@
-# data-quality-observability
+# Data Quality Observability
 
-> Contract-driven data-quality checks with persisted test history and alert routing.
+> **Contract-driven data quality framework** with YAML data contracts, automated schema and freshness checks, persisted test history, and alert routing — built for data engineers and platform teams running production analytics pipelines.
+
+[![CI](https://github.com/br413/data-quality-observability/actions/workflows/ci.yml/badge.svg)](https://github.com/br413/data-quality-observability/actions/workflows/ci.yml)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Airflow](https://img.shields.io/badge/Apache-Airflow-017CEE?style=flat-square&logo=apacheairflow&logoColor=white)](https://airflow.apache.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+
+A **data observability** portfolio project demonstrating how to catch schema drift, stale data, and broken referential integrity before they reach downstream dashboards — a critical layer in modern **data platform architecture**.
 
 ## Why this project exists
 
 Downstream analytics fails quietly when schema drift, stale data, or broken foreign keys slip through ingestion. This repository demonstrates an observability layer you can run against any tabular dataset: explicit data contracts, repeatable checks, historical test results, and routed alerts for triage.
+
+**Ideal for:** data engineers implementing data contracts, platform teams building quality gates, and architects designing observability into lakehouse pipelines.
 
 ## Architecture
 
@@ -41,14 +50,15 @@ Scheduling options are documented in [`docs/scheduling.md`](docs/scheduling.md).
 - [x] Airflow DAG `dqo_contract_checks` for scheduled contract runs
 - [ ] Webhook alert integration tests against mock server
 
-## Technology
+## Technology stack
 
 | Area | Selection |
 |------|-----------|
 | Language | Python 3.12 |
-| Contracts | YAML |
+| Contracts | YAML data contracts |
 | History | SQLite (local), PostgreSQL (optional) |
 | Alerts | Console, JSONL file, HTTP webhook |
+| Orchestration | Apache Airflow (`dqo_contract_checks` DAG) |
 | Testing | pytest |
 | Deployment | CLI + Docker Compose (PostgreSQL history) |
 
@@ -141,13 +151,23 @@ Coverage includes contract loading, each check type, end-to-end runs, history pe
 | Triage | [`docs/operations.md`](docs/operations.md) |
 | Secrets | Webhook URLs via environment variables |
 
-## Related work
+## Related projects
+
+| Project | Focus |
+|---------|-------|
+| [**production-data-pipeline**](https://github.com/br413/production-data-pipeline) | Incremental API ingestion with dbt and Airflow |
+| [**cloud-lakehouse-blueprint**](https://github.com/br413/cloud-lakehouse-blueprint) | Medallion lakehouse architecture with Terraform IaC |
+| [**@br413**](https://github.com/br413) | Senior Data Engineer & Data Architect portfolio |
 
 Complements [`production-data-pipeline`](https://github.com/br413/production-data-pipeline), which focuses on incremental ingestion and transformation. This repository isolates the quality and observability boundary.
 
+## Topics
+
+`data-quality` · `data-observability` · `data-contracts` · `data-engineering` · `data-platform` · `airflow` · `python` · `schema-validation` · `monitoring` · `alerting`
+
 ## Attribution
 
-Built as a public portfolio project by [@br413](https://github.com/br413). Sample data is synthetic for demonstration.
+Built as a public portfolio project by [@br413](https://github.com/br413) — Senior Data Engineer & Data Architect. Sample data is synthetic for demonstration.
 
 ## License
 
