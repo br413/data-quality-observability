@@ -61,4 +61,5 @@ jobs:
             --contract contracts/orders.yml \
             --data data/samples/orders.csv \
             --references data/samples \
+            --reference-time 2026-07-14T12:00:00Z \
             --history-db "$DQO_DATABASE_URL"

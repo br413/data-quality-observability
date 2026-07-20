@@ -4,11 +4,20 @@ from __future__ import annotations
 
 import argparse
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from src.dqo.alerts import AlertRouter, ConsoleAlertChannel, FileAlertChannel, WebhookAlertChannel
 from src.dqo.history import HistoryStore
 from src.dqo.runner import run_contract_file
+
+
+def _parse_reference_time(value: str) -> datetime:
+    normalized = value.replace("Z", "+00:00")
+    parsed = datetime.fromisoformat(normalized)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -23,6 +32,12 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--alert-file", type=Path, default=Path(".dqo/alerts.jsonl"))
     run_parser.add_argument("--webhook-url", type=str, default=None)
     run_parser.add_argument("--no-console-alerts", action="store_true")
+    run_parser.add_argument(
+        "--reference-time",
+        type=_parse_reference_time,
+        default=None,
+        help="Evaluate freshness relative to this ISO-8601 timestamp (default: current UTC time)",
+    )
 
     history_parser = subparsers.add_parser("history", help="Show recent runs")
     history_parser.add_argument("--contract", required=True)
@@ -41,6 +56,7 @@ def main(argv: list[str] | None = None) -> int:
             args.contract,
             args.data,
             reference_dir=args.references,
+            now=args.reference_time,
         )
 
         store = HistoryStore(database_url=args.history_db)
