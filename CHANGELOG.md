@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- Webhook alert integration tests for `WebhookAlertChannel` and router fan-out
+
 ## [0.1.0] - 2026-07-14
 
 ### Added
