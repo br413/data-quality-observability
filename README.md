@@ -48,7 +48,7 @@ Scheduling options are documented in [`docs/scheduling.md`](docs/scheduling.md).
 - [x] Failure triage runbook in [`docs/operations.md`](docs/operations.md)
 - [x] Unit and integration tests with CI
 - [x] Airflow DAG `dqo_contract_checks` for scheduled contract runs
-- [ ] Webhook alert integration tests against mock server
+- [x] Webhook alert integration tests against mock server
 
 ## Technology stack
 
