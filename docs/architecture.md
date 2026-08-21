@@ -8,6 +8,7 @@ Data platforms need a repeatable way to detect contract violations before bad da
 
 | Component | Responsibility |
 |-----------|----------------|
+| `contracts/registry.yml` | Canonical catalog — dataset name → current version + file path |
 | `contracts/*.yml` | Versioned schema, freshness, and FK expectations |
 | `src/dqo/checks/*` | Individual validation rules |
 | `src/dqo/runner.py` | Orchestrates checks into a run summary |
@@ -52,4 +53,4 @@ Contract YAML + CSV dataset + reference tables
 - **Optional PostgreSQL** — shared history for team dashboards
 - **Pluggable alert channels** — console for dev, file/webhook for ops
 
-See [`docs/adr/0001-contract-driven-checks.md`](adr/0001-contract-driven-checks.md).
+See [`docs/adr/0001-contract-driven-checks.md`](adr/0001-contract-driven-checks.md) and [`docs/adr/0002-schema-registry-and-contract-versioning.md`](adr/0002-schema-registry-and-contract-versioning.md) (registry + semver design).

@@ -1,0 +1,13 @@
+# Contract registry — canonical catalog of dataset contracts
+#
+# See docs/adr/0002-schema-registry-and-contract-versioning.md for versioning policy.
+
+contracts:
+  orders:
+    current: "1.0"
+    path: orders.yml
+    description: Order facts for retail analytics
+  customers:
+    current: "1.0"
+    path: customers.yml
+    description: Customer dimension for referential integrity checks

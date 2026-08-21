@@ -49,6 +49,9 @@ Scheduling options are documented in [`docs/scheduling.md`](docs/scheduling.md).
 - [x] Unit and integration tests with CI
 - [x] Airflow DAG `dqo_contract_checks` for scheduled contract runs
 - [x] Webhook alert integration tests against mock server
+- [x] Contract registry catalog (`contracts/registry.yml`) — [ADR 0002](docs/adr/0002-schema-registry-and-contract-versioning.md)
+- [ ] CLI resolves `--contract orders` via registry (phase 2)
+- [ ] Run history stores `contract_version` metadata (phase 3)
 
 ## Technology stack
 
@@ -100,6 +103,18 @@ Inspect recent runs:
 python -m src.dqo.cli history --contract orders
 ```
 
+### Full stack demo (with [production-data-pipeline](https://github.com/br413/production-data-pipeline))
+
+After landing data through the companion ingestion pipeline (including quarantine/DLQ in v0.2.1), run dataset contracts against the same sample fixtures this repo ships:
+
+```bash
+# From production-data-pipeline: ingest sample events, then return here
+python -m src.dqo.cli run --contract contracts/orders.yml --data data/samples/orders.csv --references data/samples
+python -m src.dqo.cli run --contract contracts/customers.yml --data data/samples/customers.csv --references data/samples
+```
+
+See the [Data Quality Contracts article](https://dev.to/bobby_ray_581732c715283b2/data-quality-contracts-in-production-pipelines-without-a-separate-platform-team-f3) for the full ingestion + quarantine + contract stack narrative.
+
 ## Project structure
 
 ```text
@@ -111,6 +126,8 @@ python -m src.dqo.cli history --contract orders
 ├── dags/
 │   └── dqo_contract_checks.py
 ├── contracts/
+│   ├── registry.yml
+│   ├── CHANGELOG.md
 │   ├── orders.yml
 │   └── customers.yml
 ├── data/samples/
