@@ -66,6 +66,7 @@ class CheckResult:
 @dataclass(frozen=True)
 class RunSummary:
     contract_name: str
+    contract_version: str
     run_id: str
     started_at: datetime
     finished_at: datetime

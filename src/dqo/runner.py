@@ -62,6 +62,7 @@ def run_contract_file(
 
     return RunSummary(
         contract_name=loaded.name,
+        contract_version=loaded.version,
         run_id=str(uuid.uuid4()),
         started_at=started_at,
         finished_at=finished_at,

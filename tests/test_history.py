@@ -7,6 +7,7 @@ from src.dqo.models import CheckResult, CheckStatus, RunSummary, Severity
 def _sample_summary(run_id: str) -> RunSummary:
     return RunSummary(
         contract_name="orders",
+        contract_version="1.0",
         run_id=run_id,
         started_at=datetime(2026, 7, 14, 10, 0, tzinfo=timezone.utc),
         finished_at=datetime(2026, 7, 14, 10, 1, tzinfo=timezone.utc),
@@ -30,6 +31,30 @@ def _sample_summary(run_id: str) -> RunSummary:
     )
 
 
+def test_history_store_migrates_legacy_schema(tmp_path) -> None:
+    db_path = tmp_path / "legacy.db"
+    connection = __import__("sqlite3").connect(db_path)
+    connection.execute(
+        """
+        CREATE TABLE check_runs (
+            run_id TEXT PRIMARY KEY,
+            contract_name TEXT NOT NULL,
+            started_at TEXT NOT NULL,
+            finished_at TEXT NOT NULL,
+            passed INTEGER NOT NULL
+        )
+        """
+    )
+    connection.commit()
+    connection.close()
+
+    store = HistoryStore(database_url=f"sqlite:///{db_path}")
+    store.save_run(_sample_summary("run-migrated"))
+
+    runs = store.recent_runs("orders")
+    assert runs[0]["contract_version"] == "1.0"
+
+
 def test_history_store_persists_runs(tmp_path) -> None:
     db_url = f"sqlite:///{tmp_path / 'history.db'}"
     store = HistoryStore(database_url=db_url)
@@ -38,6 +63,7 @@ def test_history_store_persists_runs(tmp_path) -> None:
     runs = store.recent_runs("orders")
     assert len(runs) == 1
     assert runs[0]["run_id"] == "run-1"
+    assert runs[0]["contract_version"] == "1.0"
     assert runs[0]["passed"] == 0
 
     failures = store.failure_trend("orders")
