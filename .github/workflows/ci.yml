@@ -50,6 +50,13 @@ jobs:
         env:
           AIRFLOW_HOME: /tmp/airflow
 
+      - name: Validate contract registry
+        run: python scripts/validate_registry.py
+
+      - name: Check contract version bump discipline
+        if: github.event_name == 'pull_request'
+        run: python scripts/validate_registry.py --base ${{ github.event.pull_request.base.sha }}
+
       - name: Run tests
         run: python -m pytest -q
         env:
