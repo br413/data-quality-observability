@@ -12,6 +12,7 @@ from src.dqo.checks.referential import validate_referential_integrity
 from src.dqo.checks.schema import validate_schema
 from src.dqo.checks.uniqueness import validate_uniqueness
 from src.dqo.contracts import load_contract
+from src.dqo.registry import resolve_contract_path
 from src.dqo.dataset import load_csv
 from src.dqo.models import CheckResult, DataContract, RunSummary
 
@@ -34,14 +35,21 @@ def run_checks(
 
 
 def run_contract_file(
-    contract_path: Path,
+    contract: Path | str,
     dataset_path: Path,
     *,
     reference_dir: Path | None = None,
     now: datetime | None = None,
+    registry_path: Path = Path("contracts/registry.yml"),
+    contracts_dir: Path = Path("contracts"),
 ) -> RunSummary:
     started_at = datetime.now(timezone.utc)
-    contract = load_contract(contract_path)
+    contract_path = resolve_contract_path(
+        contract,
+        registry_path=registry_path,
+        contracts_dir=contracts_dir,
+    )
+    loaded = load_contract(contract_path)
     rows = load_csv(dataset_path)
 
     references: dict[str, list[dict[str, str]]] = {}
@@ -49,11 +57,11 @@ def run_contract_file(
         for csv_path in sorted(reference_dir.glob("*.csv")):
             references[csv_path.stem] = load_csv(csv_path)
 
-    results = run_checks(contract, rows, reference_tables=references, now=now)
+    results = run_checks(loaded, rows, reference_tables=references, now=now)
     finished_at = datetime.now(timezone.utc)
 
     return RunSummary(
-        contract_name=contract.name,
+        contract_name=loaded.name,
         run_id=str(uuid.uuid4()),
         started_at=started_at,
         finished_at=finished_at,

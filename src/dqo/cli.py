@@ -25,9 +25,15 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     run_parser = subparsers.add_parser("run", help="Execute checks for a contract")
-    run_parser.add_argument("--contract", required=True, type=Path)
+    run_parser.add_argument(
+        "--contract",
+        required=True,
+        help="Registry contract name (e.g. orders) or path to contracts/*.yml",
+    )
     run_parser.add_argument("--data", required=True, type=Path)
     run_parser.add_argument("--references", type=Path, default=None)
+    run_parser.add_argument("--registry", type=Path, default=Path("contracts/registry.yml"))
+    run_parser.add_argument("--contracts-dir", type=Path, default=Path("contracts"))
     run_parser.add_argument("--history-db", type=str, default=None)
     run_parser.add_argument("--alert-file", type=Path, default=Path(".dqo/alerts.jsonl"))
     run_parser.add_argument("--webhook-url", type=str, default=None)
@@ -57,6 +63,8 @@ def main(argv: list[str] | None = None) -> int:
             args.data,
             reference_dir=args.references,
             now=args.reference_time,
+            registry_path=args.registry,
+            contracts_dir=args.contracts_dir,
         )
 
         store = HistoryStore(database_url=args.history_db)
