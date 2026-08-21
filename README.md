@@ -50,7 +50,7 @@ Scheduling options are documented in [`docs/scheduling.md`](docs/scheduling.md).
 - [x] Airflow DAG `dqo_contract_checks` for scheduled contract runs
 - [x] Webhook alert integration tests against mock server
 - [x] Contract registry catalog (`contracts/registry.yml`) — [ADR 0002](docs/adr/0002-schema-registry-and-contract-versioning.md)
-- [ ] CLI resolves `--contract orders` via registry (phase 2)
+- [x] CLI resolves `--contract orders` via registry (phase 2)
 - [ ] Run history stores `contract_version` metadata (phase 3)
 
 ## Technology stack
@@ -79,7 +79,7 @@ Windows:
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 pytest
-python -m src.dqo.cli run --contract contracts/orders.yml --data data/samples/orders.csv --references data/samples
+python -m src.dqo.cli run --contract orders --data data/samples/orders.csv --references data/samples
 ```
 
 Linux/macOS:
@@ -88,7 +88,7 @@ Linux/macOS:
 source .venv/bin/activate
 pip install -r requirements.txt
 pytest
-python -m src.dqo.cli run --contract contracts/orders.yml --data data/samples/orders.csv --references data/samples
+python -m src.dqo.cli run --contract orders --data data/samples/orders.csv --references data/samples
 ```
 
 Run the demo script (Windows):
@@ -109,7 +109,7 @@ After landing data through the companion ingestion pipeline (including quarantin
 
 ```bash
 # From production-data-pipeline: ingest sample events, then return here
-python -m src.dqo.cli run --contract contracts/orders.yml --data data/samples/orders.csv --references data/samples
+python -m src.dqo.cli run --contract orders --data data/samples/orders.csv --references data/samples
 python -m src.dqo.cli run --contract contracts/customers.yml --data data/samples/customers.csv --references data/samples
 ```
 

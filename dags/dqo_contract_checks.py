@@ -20,6 +20,7 @@ DEFAULT_ARGS = {
 PROJECT_ROOT = os.environ.get("DQO_PROJECT_ROOT", os.getcwd())
 HISTORY_DB = os.environ.get("DQO_DATABASE_URL", "sqlite:///.dqo/history.db")
 ALERT_FILE = os.environ.get("DQO_ALERT_FILE", ".dqo/alerts.jsonl")
+WEBHOOK_URL = os.environ.get("DQO_WEBHOOK_URL", "")
 
 CHECK_COMMAND = (
     "python -m src.dqo.cli run "
@@ -28,11 +29,27 @@ CHECK_COMMAND = (
     f"--alert-file {ALERT_FILE} "
     "--no-console-alerts"
 )
+if WEBHOOK_URL:
+    CHECK_COMMAND += f' --webhook-url "{WEBHOOK_URL}"'
+
+
+def _contract_task(task_id: str, contract_name: str, dataset: str) -> BashOperator:
+    return BashOperator(
+        task_id=task_id,
+        bash_command=(
+            f"cd {PROJECT_ROOT} && "
+            f'echo "Running contract {contract_name} via registry" && '
+            f"{CHECK_COMMAND} "
+            f"--contract {contract_name} "
+            f"--data data/samples/{dataset}"
+        ),
+    )
+
 
 with DAG(
     dag_id="dqo_contract_checks",
     default_args=DEFAULT_ARGS,
-    description="Run orders and customers contract checks",
+    description="Run orders and customers contract checks via registry",
     schedule="@daily",
     start_date=datetime(2026, 7, 1),
     catchup=False,
@@ -40,28 +57,27 @@ with DAG(
     doc_md="""
     ## dqo_contract_checks
 
-    1. Execute orders and customers YAML contract checks
-    2. Persist run history and route alerts to JSONL
+    Scheduled dataset contract checks resolved through `contracts/registry.yml`.
 
-    Set `DQO_PROJECT_ROOT` to the repository root when deploying.
+    1. **run_orders_checks** — `orders@1.0` against sample CSV
+    2. **run_customers_checks** — `customers@1.0` against sample CSV
+
+    Each task persists run history and appends alert JSONL. Set optional `DQO_WEBHOOK_URL`
+    for webhook routing on failures (same pattern as `production-data-pipeline`).
+
+    Environment:
+
+    | Variable | Purpose |
+    |----------|---------|
+    | `DQO_PROJECT_ROOT` | Repository root on the Airflow worker |
+    | `DQO_DATABASE_URL` | History store (SQLite default) |
+    | `DQO_ALERT_FILE` | JSONL alert output path |
+    | `DQO_WEBHOOK_URL` | Optional webhook for contract failures |
+
+    See [ADR 0002](docs/adr/0002-schema-registry-and-contract-versioning.md) for registry design.
     """,
 ) as dag:
-    run_orders_checks = BashOperator(
-        task_id="run_orders_checks",
-        bash_command=(
-            f"cd {PROJECT_ROOT} && {CHECK_COMMAND} "
-            "--contract contracts/orders.yml "
-            "--data data/samples/orders.csv"
-        ),
-    )
-
-    run_customers_checks = BashOperator(
-        task_id="run_customers_checks",
-        bash_command=(
-            f"cd {PROJECT_ROOT} && {CHECK_COMMAND} "
-            "--contract contracts/customers.yml "
-            "--data data/samples/customers.csv"
-        ),
-    )
+    run_orders_checks = _contract_task("run_orders_checks", "orders", "orders.csv")
+    run_customers_checks = _contract_task("run_customers_checks", "customers", "customers.csv")
 
     run_orders_checks >> run_customers_checks
