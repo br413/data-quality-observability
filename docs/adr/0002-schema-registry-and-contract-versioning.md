@@ -112,7 +112,7 @@ When implemented:
 | **1** | Registry + docs | `contracts/registry.yml`, ADR 0002, README update |
 | **2** | CLI resolution | `--contract orders` resolves via registry; `--version` override |
 | **3** | History metadata | Persist `contract_version` in run history | ✓ |
-| **4** | CI guards | Registry consistency tests; CHANGELOG requirement |
+| **4** | CI guards | Registry consistency tests; CHANGELOG requirement | ✓ |
 | **5** | Pipeline pin (optional) | Config reference from `production-data-pipeline` |
 
 Phases 1–2 are the minimum viable registry story for portfolio reviewers.

@@ -52,7 +52,7 @@ Scheduling options are documented in [`docs/scheduling.md`](docs/scheduling.md).
 - [x] Contract registry catalog (`contracts/registry.yml`) — [ADR 0002](docs/adr/0002-schema-registry-and-contract-versioning.md)
 - [x] CLI resolves `--contract orders` via registry (phase 2)
 - [x] Run history stores `contract_version` metadata (phase 3)
-- [ ] CI registry consistency guards (phase 4)
+- [x] CI registry consistency guards (phase 4)
 
 ## Technology stack
 
