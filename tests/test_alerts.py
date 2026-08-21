@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 def _failed_summary() -> RunSummary:
     return RunSummary(
         contract_name="orders",
+        contract_version="1.0",
         run_id="run-alert-1",
         started_at=datetime(2026, 7, 14, 10, 0, tzinfo=timezone.utc),
         finished_at=datetime(2026, 7, 14, 10, 1, tzinfo=timezone.utc),
@@ -98,6 +99,7 @@ def test_alert_router_delivers_failed_checks_to_webhook() -> None:
 def test_alert_router_skips_info_severity_for_webhook() -> None:
     summary = RunSummary(
         contract_name="orders",
+        contract_version="1.0",
         run_id="run-alert-2",
         started_at=datetime(2026, 7, 14, 10, 0, tzinfo=timezone.utc),
         finished_at=datetime(2026, 7, 14, 10, 1, tzinfo=timezone.utc),

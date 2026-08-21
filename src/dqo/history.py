@@ -59,6 +59,7 @@ class HistoryStore:
                     CREATE TABLE IF NOT EXISTS check_runs (
                         run_id TEXT PRIMARY KEY,
                         contract_name TEXT NOT NULL,
+                        contract_version TEXT,
                         started_at TEXT NOT NULL,
                         finished_at TEXT NOT NULL,
                         passed INTEGER NOT NULL
@@ -87,6 +88,7 @@ class HistoryStore:
                     CREATE TABLE IF NOT EXISTS check_runs (
                         run_id TEXT PRIMARY KEY,
                         contract_name TEXT NOT NULL,
+                        contract_version TEXT,
                         started_at TIMESTAMPTZ NOT NULL,
                         finished_at TIMESTAMPTZ NOT NULL,
                         passed BOOLEAN NOT NULL
@@ -109,17 +111,41 @@ class HistoryStore:
                     """
                 )
 
+            self._migrate_schema(connection)
+
+    def _migrate_schema(self, connection) -> None:
+        if self._is_sqlite:
+            columns = {
+                row[1]
+                for row in connection.execute("PRAGMA table_info(check_runs)").fetchall()
+            }
+            if "contract_version" not in columns:
+                connection.execute(
+                    "ALTER TABLE check_runs ADD COLUMN contract_version TEXT"
+                )
+            return
+
+        connection.execute(
+            """
+            ALTER TABLE check_runs
+            ADD COLUMN IF NOT EXISTS contract_version TEXT
+            """
+        )
+
     def save_run(self, summary: RunSummary) -> None:
         with self._connection() as connection:
             self._execute(
                 connection,
                 """
-                INSERT INTO check_runs (run_id, contract_name, started_at, finished_at, passed)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO check_runs (
+                    run_id, contract_name, contract_version, started_at, finished_at, passed
+                )
+                VALUES (%s, %s, %s, %s, %s, %s)
                 """,
                 (
                     summary.run_id,
                     summary.contract_name,
+                    summary.contract_version,
                     summary.started_at.isoformat(),
                     summary.finished_at.isoformat(),
                     summary.passed if not self._is_sqlite else int(summary.passed),
@@ -153,7 +179,7 @@ class HistoryStore:
             cursor = self._query(
                 connection,
                 """
-                SELECT run_id, contract_name, started_at, finished_at, passed
+                SELECT run_id, contract_name, contract_version, started_at, finished_at, passed
                 FROM check_runs
                 WHERE contract_name = %s
                 ORDER BY started_at DESC

@@ -89,7 +89,8 @@ def main(argv: list[str] | None = None) -> int:
         runs = store.recent_runs(args.contract, limit=args.limit)
         for run in runs:
             status = "passed" if run["passed"] else "failed"
-            print(f"{run['started_at']}  {run['run_id']}  {status}")
+            version = run.get("contract_version") or "unknown"
+            print(f"{run['started_at']}  {run['run_id']}  v{version}  {status}")
         return 0
 
     parser.error(f"unknown command: {args.command}")
