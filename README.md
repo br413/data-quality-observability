@@ -161,6 +161,13 @@ Coverage includes contract loading, each check type, end-to-end runs, history pe
 
 Complements [`production-data-pipeline`](https://github.com/br413/production-data-pipeline), which focuses on incremental ingestion and transformation. This repository isolates the quality and observability boundary.
 
+## Writing
+
+| Article | Topic |
+|---------|-------|
+| [Building a Production Data Pipeline with Incremental Loading and dbt](https://dev.to/bobby_ray_581732c715283b2/building-a-production-data-pipeline-with-incremental-loading-and-dbt-2e2c) | Incremental ingestion and medallion layering — companion pipeline repo |
+| [Data Quality Contracts in Production Pipelines](https://dev.to/bobby_ray_581732c715283b2/data-quality-contracts-in-production-pipelines-without-a-separate-platform-team-f3) | YAML contracts, quarantine/DLQ stack, alert routing — uses this repo |
+
 ## Topics
 
 `data-quality` · `data-observability` · `data-contracts` · `data-engineering` · `data-platform` · `airflow` · `python` · `schema-validation` · `monitoring` · `alerting`
