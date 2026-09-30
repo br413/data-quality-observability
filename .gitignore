@@ -10,3 +10,7 @@ __pycache__/
 # Local history and alerts
 .dqo/
 *.db
+build/
+dist/
+*.egg-info/
+dqo-demo/

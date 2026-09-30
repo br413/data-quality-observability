@@ -6,15 +6,15 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.dqo.checks.freshness import validate_freshness
-from src.dqo.checks.nulls import validate_nulls
-from src.dqo.checks.referential import validate_referential_integrity
-from src.dqo.checks.schema import validate_schema
-from src.dqo.checks.uniqueness import validate_uniqueness
-from src.dqo.contracts import load_contract
-from src.dqo.registry import resolve_contract_path
-from src.dqo.dataset import load_csv
-from src.dqo.models import CheckResult, DataContract, RunSummary
+from .checks.freshness import validate_freshness
+from .checks.nulls import validate_nulls
+from .checks.referential import validate_referential_integrity
+from .checks.schema import validate_schema
+from .checks.uniqueness import validate_uniqueness
+from .contracts import load_contract
+from .registry import resolve_contract_path
+from .dataset import load_csv
+from .models import CheckResult, CheckStatus, DataContract, RunSummary, Severity
 
 
 def run_checks(
@@ -25,8 +25,21 @@ def run_checks(
     now: datetime | None = None,
 ) -> tuple[CheckResult, ...]:
     references = reference_tables or {}
+    schema = validate_schema(contract, rows)
+    if schema.status == CheckStatus.FAILED:
+        return (schema,) + tuple(
+            CheckResult(
+                contract_name=contract.name,
+                check_type=name,
+                status=CheckStatus.SKIPPED,
+                message="fix the schema mismatch before evaluating this check",
+                severity=Severity.INFO,
+                row_count=len(rows),
+            )
+            for name in ("nulls", "uniqueness", "freshness", "referential_integrity")
+        )
     return (
-        validate_schema(contract, rows),
+        schema,
         validate_nulls(contract, rows),
         validate_uniqueness(contract, rows),
         validate_freshness(contract, rows, now=now),

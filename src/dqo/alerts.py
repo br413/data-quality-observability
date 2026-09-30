@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Protocol
 from urllib import error, request
 
-from src.dqo.models import CheckResult, RunSummary, Severity
+from .models import CheckResult, RunSummary, Severity
 
 
 @dataclass(frozen=True)

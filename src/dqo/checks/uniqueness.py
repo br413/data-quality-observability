@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from src.dqo.models import CheckResult, CheckStatus, DataContract, Severity
+from ..models import CheckResult, CheckStatus, DataContract, Severity
 
 
 def validate_uniqueness(contract: DataContract, rows: list[dict[str, str]]) -> CheckResult:

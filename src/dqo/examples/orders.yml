@@ -1,0 +1,31 @@
+name: orders
+version: "1.0"
+description: Order facts contract for retail analytics
+
+freshness:
+  column: updated_at
+  max_age_hours: 48
+
+columns:
+  order_id:
+    type: string
+    nullable: false
+    unique: true
+  customer_id:
+    type: string
+    nullable: false
+  order_total:
+    type: number
+    nullable: false
+  status:
+    type: string
+    nullable: false
+  updated_at:
+    type: datetime
+    nullable: false
+
+referential_integrity:
+  - column: customer_id
+    references:
+      table: customers
+      column: customer_id

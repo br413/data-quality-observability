@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "data-quality-observability"
+version = "0.2.0"
+description = "Local CSV data contracts with actionable checks and offline HTML reports"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = ["PyYAML>=6,<7"]
+keywords = ["data-quality", "data-contracts", "csv", "observability"]
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.2,<4"]
+dev = ["pytest>=8,<9", "build>=1,<2"]
+
+[project.scripts]
+dqo = "dqo.cli:main"
+
+[project.urls]
+Repository = "https://github.com/br413/data-quality-observability"
+Issues = "https://github.com/br413/data-quality-observability/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["dqo*"]
+
+[tool.setuptools.package-data]
+dqo = ["examples/*.yml", "examples/*.csv"]

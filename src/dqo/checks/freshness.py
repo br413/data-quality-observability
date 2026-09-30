@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from src.dqo.models import CheckResult, CheckStatus, DataContract, Severity
+from ..models import CheckResult, CheckStatus, DataContract, Severity
 
 
 def _parse_datetime(value: str) -> datetime:
@@ -46,13 +46,18 @@ def validate_freshness(
     column_name = contract.freshness.column
     max_age = timedelta(hours=contract.freshness.max_age_hours)
     stale_rows: list[str] = []
+    invalid_rows: list[int] = []
 
-    for row in rows:
-        timestamp = _parse_datetime(row[column_name])
+    for index, row in enumerate(rows):
+        try:
+            timestamp = _parse_datetime(row[column_name])
+        except (ValueError, TypeError, AttributeError, KeyError):
+            invalid_rows.append(index)
+            continue
         if reference - timestamp > max_age:
             stale_rows.append(row.get("order_id") or row.get("customer_id") or column_name)
 
-    if stale_rows:
+    if stale_rows or invalid_rows:
         return CheckResult(
             contract_name=contract.name,
             check_type="freshness",
@@ -60,11 +65,12 @@ def validate_freshness(
             message=(
                 f"{len(stale_rows)} row(s) older than {contract.freshness.max_age_hours}h "
                 f"on column {column_name}"
+                f"; {len(invalid_rows)} invalid timestamp(s)"
             ),
             severity=Severity.WARNING,
             row_count=len(rows),
-            failed_count=len(stale_rows),
-            metadata={"stale_sample": stale_rows[:5]},
+            failed_count=len(stale_rows) + len(invalid_rows),
+            metadata={"stale_sample": stale_rows[:5], "invalid_row_indices": invalid_rows[:5]},
         )
 
     return CheckResult(

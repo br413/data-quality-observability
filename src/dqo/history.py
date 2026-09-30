@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
 
-from src.dqo.models import CheckResult, CheckStatus, RunSummary, Severity
+from .models import CheckResult, CheckStatus, RunSummary, Severity
 
 
 class HistoryStore:
