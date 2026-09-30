@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.dqo.models import CheckResult, CheckStatus, DataContract, Severity
+from ..models import CheckResult, CheckStatus, DataContract, Severity
 
 
 def validate_referential_integrity(

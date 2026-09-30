@@ -7,7 +7,7 @@ from typing import Any
 
 import yaml
 
-from src.dqo.models import (
+from .models import (
     ColumnContract,
     DataContract,
     ForeignKeyContract,

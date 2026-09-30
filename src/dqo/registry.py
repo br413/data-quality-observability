@@ -9,7 +9,7 @@ from typing import Any
 
 import yaml
 
-from src.dqo.contracts import load_contract
+from .contracts import load_contract
 
 
 def load_registry(registry_path: Path) -> dict[str, Any]:
@@ -35,12 +35,10 @@ def resolve_contract_path(
 ) -> Path:
     candidate = Path(name_or_path)
 
-    if candidate.suffix == ".yml":
+    if candidate.suffix.lower() in {".yml", ".yaml"}:
         if candidate.is_file():
             return candidate
-        nested = contracts_dir / candidate.name
-        if nested.is_file():
-            return nested
+        raise FileNotFoundError(f"Contract file not found: {candidate}")
 
     contract_key = str(name_or_path)
     registry = load_registry(registry_path)

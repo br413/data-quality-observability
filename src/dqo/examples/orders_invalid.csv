@@ -1,0 +1,5 @@
+order_id,customer_id,order_total,status,updated_at
+O1001,C001,129.50,completed,2026-07-13T10:15:00Z
+O1002,C002,,completed,2026-07-13T11:20:00Z
+O1002,C002,42.00,completed,2026-07-13T11:20:00Z
+O1004,C999,15.00,pending,2026-06-01T09:00:00Z

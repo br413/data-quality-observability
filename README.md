@@ -1,72 +1,16 @@
 # Data Quality Observability
 
-> **Contract-driven data quality framework** with YAML data contracts, automated schema and freshness checks, persisted test history, and alert routing — built for data engineers and platform teams running production analytics pipelines.
+**Check CSV data contracts. Inspect failures. Share an offline report.**
 
 [![CI](https://github.com/br413/data-quality-observability/actions/workflows/ci.yml/badge.svg)](https://github.com/br413/data-quality-observability/actions/workflows/ci.yml)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![Airflow](https://img.shields.io/badge/Apache-Airflow-017CEE?style=flat-square&logo=apacheairflow&logoColor=white)](https://airflow.apache.org/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)](pyproject.toml)
+[![MIT license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A **data observability** portfolio project demonstrating how to catch schema drift, stale data, and broken referential integrity before they reach downstream dashboards — a critical layer in modern **data platform architecture**.
+DQO is a small Python CLI for teams exchanging CSV data. Define expectations in YAML,
+check a delivery, and get a readable HTML report or structured JSON for automation.
+Run locally with SQLite; no cloud account, Airflow, or database server required.
 
-## Why this project exists
-
-Downstream analytics fails quietly when schema drift, stale data, or broken foreign keys slip through ingestion. This repository demonstrates an observability layer you can run against any tabular dataset: explicit data contracts, repeatable checks, historical test results, and routed alerts for triage.
-
-**Ideal for:** data engineers implementing data contracts, platform teams building quality gates, and architects designing observability into lakehouse pipelines.
-
-## Architecture
-
-```text
-Data contract (YAML)
-    ↓
-Quality check suite
-    ├── schema validation
-    ├── null checks
-    ├── uniqueness
-    ├── freshness
-    └── referential integrity
-    ↓
-Run summary
-    ├── history store (SQLite / PostgreSQL)
-    └── alert router (console · file · webhook)
-    ↓
-On-call triage runbook
-```
-
-See [`docs/architecture.md`](docs/architecture.md) for component boundaries and failure modes.
-
-Scheduling options are documented in [`docs/scheduling.md`](docs/scheduling.md).
-
-## Current capabilities
-
-- [x] YAML data contracts with column rules and foreign keys (orders, customers)
-- [x] Schema validation against contract columns
-- [x] Null, uniqueness, freshness, and referential-integrity checks
-- [x] Check run history with SQLite (default) or PostgreSQL
-- [x] Alert routing to console, JSONL file, and optional webhook
-- [x] Failure triage runbook in [`docs/operations.md`](docs/operations.md)
-- [x] Unit and integration tests with CI
-- [x] Airflow DAG `dqo_contract_checks` for scheduled contract runs
-- [x] Webhook alert integration tests against mock server
-- [x] Contract registry catalog (`contracts/registry.yml`) — [ADR 0002](docs/adr/0002-schema-registry-and-contract-versioning.md)
-- [x] CLI resolves `--contract orders` via registry (phase 2)
-- [x] Run history stores `contract_version` metadata (phase 3)
-- [x] CI registry consistency guards (phase 4)
-
-## Technology stack
-
-| Area | Selection |
-|------|-----------|
-| Language | Python 3.12 |
-| Contracts | YAML data contracts |
-| History | SQLite (local), PostgreSQL (optional) |
-| Alerts | Console, JSONL file, HTTP webhook |
-| Orchestration | Apache Airflow (`dqo_contract_checks` DAG) |
-| Testing | pytest |
-| Deployment | CLI + Docker Compose (PostgreSQL history) |
-
-## Quick start
+## Try the broken-to-fixed demo
 
 ```bash
 git clone https://github.com/br413/data-quality-observability.git
@@ -74,128 +18,123 @@ cd data-quality-observability
 python -m venv .venv
 ```
 
-Windows:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-pytest
-python -m src.dqo.cli run --contract orders --data data/samples/orders.csv --references data/samples
-```
-
-Linux/macOS:
+Activate the environment:
 
 ```bash
+# macOS / Linux
 source .venv/bin/activate
-pip install -r requirements.txt
-pytest
-python -m src.dqo.cli run --contract orders --data data/samples/orders.csv --references data/samples
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
 ```
-
-Run the demo script (Windows):
-
-```powershell
-.\scripts\run_demo.ps1
-```
-
-Inspect recent runs:
 
 ```bash
-python -m src.dqo.cli history --contract orders
+python -m pip install .
+dqo demo
 ```
 
-### Full stack demo (with [production-data-pipeline](https://github.com/br413/production-data-pipeline))
+Open **`dqo-demo/report.html`** in your browser. The demo creates two runs:
 
-After landing data through the companion ingestion pipeline (including quarantine/DLQ in v0.2.1), run dataset contracts against the same sample fixtures this repo ships:
+| Run | What you see |
+| --- | --- |
+| Broken delivery | Missing order total, duplicate order ID, stale timestamp, unknown customer |
+| Corrected delivery | All five checks pass |
+
+The folder includes the input CSVs, contract, SQLite history, and JSON report.
+Freshness uses a fixed reference time so this example keeps working in the future.
+`dqo demo --output another-demo` creates a fresh copy; existing directories are never overwritten.
+
+![Demo report showing the failing delivery and its checks](docs/assets/demo-report.png)
+
+## Check your own data
+
+Create `customers.yaml`:
+
+```yaml
+name: customers
+version: "1.0"
+columns:
+  customer_id:
+    type: string
+    nullable: false
+    unique: true
+  email:
+    type: string
+    nullable: false
+```
+
+For a CSV with `customer_id,email` columns:
 
 ```bash
-# From production-data-pipeline: ingest sample events, then return here
-python -m src.dqo.cli run --contract orders --data data/samples/orders.csv --references data/samples
-python -m src.dqo.cli run --contract contracts/customers.yml --data data/samples/customers.csv --references data/samples
+dqo run --contract customers.yaml --data customers.csv --report report.html
 ```
 
-See the [Data Quality Contracts article](https://dev.to/bobby_ray_581732c715283b2/data-quality-contracts-in-production-pipelines-without-a-separate-platform-team-f3) for the full ingestion + quarantine + contract stack narrative.
+Use `--report report.json` for machine-readable output. Reports are written even when
+quality checks fail. The extension selects the format; existing report files are replaced.
 
-## Project structure
-
-```text
-.
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   ├── workflows/ci.yml
-│   └── pull_request_template.md
-├── dags/
-│   └── dqo_contract_checks.py
-├── contracts/
-│   ├── registry.yml
-│   ├── CHANGELOG.md
-│   ├── orders.yml
-│   └── customers.yml
-├── data/samples/
-├── docs/
-│   ├── architecture.md
-│   ├── operations.md
-│   └── adr/
-├── scripts/
-│   └── run_demo.ps1
-├── src/dqo/
-├── tests/
-├── docker-compose.yml
-├── README.md
-├── CONTRIBUTING.md
-├── SECURITY.md
-└── requirements.txt
-```
-
-## Engineering decisions
-
-Architectural Decision Records are stored in [`docs/adr/`](docs/adr/).
-
-## Testing
+**Exit codes:** `0` = no failed checks, `1` = quality failure, `2` = invalid input or file error.
+Optional checks without rules appear as **skipped**, not passed.
 
 ```bash
-pytest -v
+# View local history
+dqo history --contract customers
+
+# Check the bundled sample without time-dependent freshness failures
+dqo run --contract contracts/orders.yml --data data/samples/orders.csv --references data/samples --reference-time 2026-07-14T12:00:00Z --report orders.html
 ```
 
-Coverage includes contract loading, each check type, end-to-end runs, history persistence, and alert routing.
+The legacy `python -m src.dqo.cli` commands still work from a source checkout.
 
-## Operations
+## What is checked?
 
-| Concern | Approach |
-|---------|----------|
-| Scheduling | Airflow DAG `@daily` (`dqo_contract_checks`) |
-| Monitoring | Check history + alert JSONL |
-| Retries | Re-run after upstream fix; history preserves prior failures |
-| Triage | [`docs/operations.md`](docs/operations.md) |
-| Secrets | Webhook URLs via environment variables |
+| Check | Behavior |
+| --- | --- |
+| Schema | Required and unexpected column names; dependent checks skip on a mismatch |
+| Nullability | Required values are populated |
+| Uniqueness | Duplicate values in columns marked `unique` |
+| Freshness | Each row's timestamp against a maximum age; malformed timestamps fail |
+| Referential integrity | Foreign keys resolve against CSV reference tables |
 
-## Related projects
+Add freshness and reference rules using [the orders contract](contracts/orders.yml).
+Contract names can resolve through [the versioned registry](contracts/registry.yml).
 
-| Project | Focus |
-|---------|-------|
-| [**production-data-pipeline**](https://github.com/br413/production-data-pipeline) | Incremental API ingestion with dbt and Airflow |
-| [**cloud-lakehouse-blueprint**](https://github.com/br413/cloud-lakehouse-blueprint) | Medallion lakehouse architecture with Terraform IaC |
-| [**@br413**](https://github.com/br413) | Senior Data Engineer & Data Architect portfolio |
+## Where DQO fits
 
-Complements [`production-data-pipeline`](https://github.com/br413/production-data-pipeline), which focuses on incremental ingestion and transformation. This repository isolates the quality and observability boundary.
+Use it for a local CSV delivery check, a reproducible quality incident, or a CI gate
+that produces an artifact colleagues can open without running an application.
 
-## Writing
+Current limits are explicit:
 
-| Article | Topic |
-|---------|-------|
-| [Building a Production Data Pipeline with Incremental Loading and dbt](https://dev.to/bobby_ray_581732c715283b2/building-a-production-data-pipeline-with-incremental-loading-and-dbt-2e2c) | Incremental ingestion and medallion layering — companion pipeline repo |
-| [Data Quality Contracts in Production Pipelines](https://dev.to/bobby_ray_581732c715283b2/data-quality-contracts-in-production-pipelines-without-a-separate-platform-team-f3) | YAML contracts, quarantine/DLQ stack, alert routing — uses this repo |
-| [What I Learned Contributing to Prefect, dbt, and Airflow](https://dev.to/bobby_ray_581732c715283b2/what-i-learned-contributing-to-prefect-dbt-and-airflow-an-honest-oss-retrospective-1ki8) | Honest OSS retrospective — upstream merges and building in public |
-| [Contract Versioning in Production Pipelines](https://dev.to/bobby_ray_581732c715283b2/contract-versioning-in-production-pipelines-registry-cli-and-run-history-13el) | Registry → CLI → history → CI — this repo |
+- CSV inputs are loaded into memory. This is not a warehouse-scale query engine.
+- Column `type` is descriptive metadata today; general type coercion/validation is not implemented.
+- Reports show check findings and limited evidence, not a complete failed-row explorer.
+- No web server, upload interface, Parquet input, or database dataset connector yet.
+- PostgreSQL support stores **run history**; it does not scan PostgreSQL datasets.
+- Reports and alerts can include sample identifiers. Review them before sharing.
+- Empty datasets and skipped checks do not establish that data is fit for use.
 
-## Topics
+## Automation and optional integrations
 
-`data-quality` · `data-observability` · `data-contracts` · `data-engineering` · `data-platform` · `airflow` · `python` · `schema-validation` · `monitoring` · `alerting`
+`dqo run` works in any CI runner with Python. Preserve `report.html` as a build artifact
+and let exit code `1` stop publication of a failing delivery.
+The JSON export has `schema_version: 1`, a `runs` array, and per-check statuses and metadata.
 
-## Attribution
+Local history defaults to `.dqo/history.db`. Set `--history-db` or `DQO_DATABASE_URL`
+to select another store. Install PostgreSQL support with `python -m pip install '.[postgres]'`.
 
-Built as a public portfolio project by [@br413](https://github.com/br413) — Senior Data Engineer & Data Architect. Sample data is synthetic for demonstration.
+[Airflow scheduling](docs/scheduling.md), [alert routing and triage](docs/operations.md),
+and [architecture decisions](docs/architecture.md) remain available for integrations.
+The CLI and demo do not require Airflow.
 
-## License
+## Help shape the next release
 
-MIT — see [LICENSE](LICENSE).
+Try DQO on a small dataset and [tell us what blocked you](https://github.com/br413/data-quality-observability/issues/new/choose).
+Include a tiny anonymized example, the command you ran, and the result you expected.
+
+We welcome fixes, documentation improvements, and focused tests. Start with
+[CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/roadmap.md).
+The next priorities are structured failing-row evidence, stricter contract validation,
+and larger-file execution. These are planned, not released features.
+
+If DQO is useful to you, a star helps others discover it.
+
+MIT licensed. Built and maintained by [Bobby Ray](https://github.com/br413).
