@@ -119,6 +119,6 @@ Phases 1–2 are the minimum viable registry story for portfolio reviewers.
 
 ## References
 
-- [Data Quality Contracts in Production Pipelines (Dev.to)](https://dev.to/bobby_ray_581732c715283b2/data-quality-contracts-in-production-pipelines-without-a-separate-platform-team-f3)
+- [Data Quality Contracts in Production Pipelines (Dev.to)](https://github.com/br413/br413.github.io/blob/main/articles/data-quality-contracts-production-pipelines.md)
 - [production-data-pipeline ADR 0004 — quarantine](https://github.com/br413/production-data-pipeline/blob/main/docs/adr/0004-failed-record-quarantine.md)
 - [architecture.md](../architecture.md)

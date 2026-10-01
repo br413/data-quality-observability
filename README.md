@@ -137,4 +137,4 @@ and larger-file execution. These are planned, not released features.
 
 If DQO is useful to you, a star helps others discover it.
 
-MIT licensed. Built and maintained by [Bobby Ray](https://github.com/br413).
+MIT licensed. Built and maintained by [br413](https://github.com/br413).
